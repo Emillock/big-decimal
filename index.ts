@@ -43,6 +43,20 @@ class BigDecimal {
         return new BigDecimal(resStr.join(''));
     }
 
+    static diff(bigDec1: BigDecimal, bigDec2: BigDecimal) {
+        const { bigDecJoinArr, maxLen } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
+
+        const bigDec1Join = bigDecJoinArr[0] as bigint;
+        const bigDec2Join = bigDecJoinArr[1] as bigint;
+
+        const resBigInt = bigDec1Join - bigDec2Join;
+
+        const resStr = resBigInt.toString().split('');
+        resStr.splice(resBigInt.toString().length - maxLen, 0, '.');
+
+        return new BigDecimal(resStr.join(''));
+    }
+
     toString() {
         const num1Str = this.num1.toString();
         const num2Str = this.num2.toString();
@@ -54,3 +68,4 @@ const num1 = new BigDecimal(100, 1000000000000000000000000000n);
 const num2 = new BigDecimal(100, 2);
 
 console.log(BigDecimal.sum(num1, num2).toString());
+console.log(BigDecimal.diff(num1, num2).toString());
