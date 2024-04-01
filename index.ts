@@ -15,8 +15,7 @@ class BigDecimal {
         this.num2 = BigInt(num2);
     }
 
-    static sum(bigDec1: BigDecimal, bigDec2: BigDecimal) {
-        
+    private static bigDecJoin(bigDec1: BigDecimal, bigDec2: BigDecimal) {
         const bigDec1Num2Len = bigDec1.num2.toString().length;
         const bigDec2Num2Len = bigDec2.num2.toString().length;
         const maxLen = Math.max(bigDec1Num2Len, bigDec2Num2Len);
@@ -26,6 +25,15 @@ class BigDecimal {
 
         const bigDec1Join = BigInt(bigDec1.num1.toString() + bigDec1Num2Str);
         const bigDec2Join = BigInt(bigDec2.num1.toString() + bigDec2Num2Str);
+
+        return { bigDecJoinArr: [bigDec1Join, bigDec2Join], maxLen };
+    }
+
+    static sum(bigDec1: BigDecimal, bigDec2: BigDecimal) {
+        const { bigDecJoinArr, maxLen } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
+
+        const bigDec1Join = bigDecJoinArr[0] as bigint;
+        const bigDec2Join = bigDecJoinArr[1] as bigint;
 
         const resBigInt = bigDec1Join + bigDec2Join;
 
@@ -38,7 +46,7 @@ class BigDecimal {
     toString() {
         const num1Str = this.num1.toString();
         const num2Str = this.num2.toString();
-        return `${num1Str}${num2Str.replace("0", "").length === 0 ? "" : '.' + num2Str.replace(/0+$/,'')}`;
+        return `${num1Str}${num2Str.replace("0", "").length === 0 ? "" : '.' + num2Str.replace(/0+$/, '')}`;
     }
 }
 
