@@ -5,7 +5,7 @@ class BigDecimal {
 
     constructor(num1: bigint | string | number, num2?: bigint | string | number) {
         this.isNegative = num1.toString().includes('-');
-        if (num2 === undefined) {
+        if (typeof num1 === "string" && num2 === undefined) {
             const numArr = (num1 as string).split(".");
 
             this.num1 = BigDecimal.bigIntAbs(BigInt(numArr[0] === "-" ? 0 : numArr[0]!));
@@ -14,7 +14,7 @@ class BigDecimal {
         }
 
         this.num1 = BigDecimal.bigIntAbs(BigInt(num1));
-        this.num2 = BigDecimal.bigIntAbs(BigInt(num2));
+        this.num2 = BigDecimal.bigIntAbs(BigInt(num2??0));
     }
 
     private static bigIntAbs(bigInt: bigint) {
@@ -70,8 +70,122 @@ class BigDecimal {
     }
 }
 
-const num1 = new BigDecimal(100, 1000000000000000000000000001n);
-const num2 = new BigDecimal(100, 2);
+const num1 = new BigDecimal(-100, 1000000);
+const num2 = new BigDecimal(100, 1000001);
+const cases: Array<{
+    args: Array<number[]>
+    res: {
+        sum: string,
+        diff: string
+    }
+}> = [
+        {
+            args: [
+                [100],
+                [100]
+            ],
+            res: {
+                sum: "200",
+                diff: "0"
+            }
+        },
+        {
+            args: [
+                [0, 1],
+                [0, 1]
+            ],
+            res: {
+                sum: "0.2",
+                diff: "0"
+            }
+        },
+        {
+            args: [
+                [100, 1],
+                [100, 1]
+            ],
+            res: {
+                sum: "200.2",
+                diff: "0"
+            }
+        },
+        {
+            args: [
+                [300, 4],
+                [100, 2]
+            ],
+            res: {
+                sum: "400.6",
+                diff: "200.2"
+            }
+        },
+        {
+            args: [
+                [100, 2],
+                [300, 4]
+            ],
+            res: {
+                sum: "400.6",
+                diff: "-200.2"
+            }
+        },
+        {
+            args: [
+                [100, 10000000000],
+                [100, 100000000000]
+            ],
+            res: {
+                sum: "200.2",
+                diff: "0"
+            }
+        },
+        {
+            args: [
+                [100, 1000000],
+                [100, 1000001]
+            ],
+            res: {
+                sum: "200.2000001",
+                diff: "-0.1"
+            }
+        },
+        {
+            args: [
+                [-100, 2],
+                [300, 4]
+            ],
+            res: {
+                sum: "200.2",
+                diff: "-400.6"
+            }
+        },
+        {
+            args: [
+                [-100, 2],
+                [-300, 4]
+            ],
+            res: {
+                sum: "-400.6",
+                diff: "200.2"
+            }
+        },
+        {
+            args: [
+                [100, 2],
+                [-300, 4]
+            ],
+            res: {
+                sum: "-200.2",
+                diff: "400.6"
+            }
+        },
+    ]
 
-console.log(BigDecimal.sum(num1, num2).toString());
-console.log(BigDecimal.diff(num1, num2).toString());
+for (let i of cases) {
+    const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
+    const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
+    const sumRes = BigDecimal.sum(num1, num2).toString();
+    const diffRes = BigDecimal.diff(num1, num2).toString();
+    if (sumRes !== i.res.sum) console.log(...i.args + ` did not pass sum. Expected Result: ${i.res.sum} Got Result: ${sumRes}`);
+    if (diffRes !== i.res.sum) console.log(...i.args + ` did not pass diff. Expected Result: ${i.res.diff} Got Result: ${diffRes}`);
+}
