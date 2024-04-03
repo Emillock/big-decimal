@@ -5,8 +5,8 @@ class BigDecimal {
 
     constructor(num1: bigint | string | number, num2?: bigint | string | number) {
         this.isNegative = num1.toString().includes('-');
-        if (typeof num1 === "string" && num2 === undefined) {
-            const numArr = (num1 as string).split(".");
+        if (num2 === undefined && (typeof num1 === "string" || typeof num1 === "number")) {
+            const numArr = num1.toString().split(".");
 
             this.num1 = BigDecimal.bigIntAbs(BigInt(numArr[0] === "-" ? 0 : numArr[0]!));
             this.num2 = BigDecimal.bigIntAbs(BigInt(numArr[1] ?? 0));
@@ -14,7 +14,7 @@ class BigDecimal {
         }
 
         this.num1 = BigDecimal.bigIntAbs(BigInt(num1));
-        this.num2 = BigDecimal.bigIntAbs(BigInt(num2??0));
+        this.num2 = BigDecimal.bigIntAbs(BigInt(num2 ?? 0));
     }
 
     private static bigIntAbs(bigInt: bigint) {
