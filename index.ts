@@ -9,12 +9,12 @@ class BigDecimal {
             const numArr = num1.toString().split(".");
 
             this.num1 = BigDecimal.bigIntAbs(BigInt(numArr[0] === "-" ? 0 : numArr[0]!));
-            this.num2 = BigDecimal.bigIntAbs(BigInt(numArr[1] ?? 0));
+            this.num2 = BigDecimal.bigIntAbs(BigInt(numArr[1] === undefined ? 0 : numArr[1].replace(/0+$/, '')));
             return;
         }
 
         this.num1 = BigDecimal.bigIntAbs(BigInt(num1));
-        this.num2 = BigDecimal.bigIntAbs(BigInt(num2 ?? 0));
+        this.num2 = BigDecimal.bigIntAbs(BigInt(num2?.toString().replace(/0+$/, '') ?? 0));
     }
 
     private static bigIntAbs(bigInt: bigint) {
@@ -72,13 +72,15 @@ class BigDecimal {
 
 const num1 = new BigDecimal(-100, 1000000);
 const num2 = new BigDecimal(100, 1000001);
-const cases: Array<{
-    args: Array<number[]>
-    res: {
-        sum: string,
-        diff: string
+const cases: Array<
+    {
+        args: Array<number[]>
+        res: {
+            sum: string,
+            diff: string
+        }
     }
-}> = [
+> = [
         {
             args: [
                 [100],
