@@ -105,21 +105,30 @@ class BigDecimal {
         return new BigDecimal(resArr.join(''));
     }
 
+
     static div(bigDec1: BigDecimal, bigDec2: BigDecimal) {
         const { bigDecJoinArr } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
 
-        let bigDec1Join = bigDecJoinArr[0] as bigint;
-        const bigDec2Join = bigDecJoinArr[1] as bigint;
+        let bigDec1Join = BigDecimal.bigIntAbs(bigDecJoinArr[0] as bigint);
+        const bigDec2Join = BigDecimal.bigIntAbs(bigDecJoinArr[1] as bigint);
 
-        const resBigInt = bigDec1Join / bigDec2Join;
+        const isNegative = bigDec2.isNegative !== bigDec1.isNegative;
+
+        let resBefDot = bigDec1Join / bigDec2Join;
         let resAfDot = 0n;
-
         while (bigDec1Join % bigDec2Join > 0 && resAfDot.toString().length < 10) {
-            resAfDot = resAfDot * 10n + bigDec1Join % bigDec2Join;
-            bigDec1Join = bigDec1Join % bigDec2Join;
+            // console.log(bigDec1Join+"/"+bigDec2Join+"="+(bigDec1Join/bigDec2Join));
+
+            resAfDot = resAfDot * 10n + bigDec1Join / bigDec2Join;
+            bigDec1Join = bigDec1Join % bigDec2Join * 10n;
         }
 
-        return new BigDecimal(`${resBigInt}.${resAfDot}`);
+        // console.log(resAfDot);
+
+        const resArr = resAfDot.toString().split('');
+        resArr.splice(resBefDot === 0n ? 0 : resBefDot.toString().length, 0, '.');
+
+        return new BigDecimal((isNegative ? "-" : "") + (resAfDot === 0n ? resBefDot : resArr.join('')));
     }
 
     toString() {
@@ -129,15 +138,16 @@ class BigDecimal {
     }
 }
 
-const num1 = new BigDecimal(10, 0);
-const num2 = new BigDecimal(9, 0);
+const num1 = new BigDecimal(300, 4);
+const num2 = new BigDecimal(100, 2);
 const cases: Array<
     {
         args: Array<number[]>
         res: {
             sum: string,
             diff: string,
-            prod: string
+            prod: string,
+            div: string
         }
     }
 > = [
@@ -149,7 +159,8 @@ const cases: Array<
             res: {
                 sum: "200",
                 diff: "0",
-                prod: "10000"
+                prod: "10000",
+                div: "1"
             }
         },
         {
@@ -160,7 +171,8 @@ const cases: Array<
             res: {
                 sum: "0.2",
                 diff: "0",
-                prod: "0.01"
+                prod: "0.01",
+                div: "1"
             }
         },
         {
@@ -171,7 +183,8 @@ const cases: Array<
             res: {
                 sum: "200.2",
                 diff: "0",
-                prod: "10020.01"
+                prod: "10020.01",
+                div: "1"
             }
         },
         {
@@ -182,7 +195,8 @@ const cases: Array<
             res: {
                 sum: "400.6",
                 diff: "200.2",
-                prod: "30100.08"
+                prod: "30100.08",
+                div: "2.998003992"
             }
         },
         {
@@ -193,7 +207,8 @@ const cases: Array<
             res: {
                 sum: "400.6",
                 diff: "-200.2",
-                prod: "30100.08"
+                prod: "30100.08",
+                div: "0.3335552596"
             }
         },
         {
@@ -204,7 +219,8 @@ const cases: Array<
             res: {
                 sum: "200.2",
                 diff: "0",
-                prod: "10020.01"
+                prod: "10020.01",
+                div: "1"
             }
         },
         {
@@ -215,7 +231,8 @@ const cases: Array<
             res: {
                 sum: "200.2000001",
                 diff: "-0.1",
-                prod: "10020.01001001"
+                prod: "10020.01001001",
+                div: "0.999999999"
             }
         },
         {
@@ -226,7 +243,8 @@ const cases: Array<
             res: {
                 sum: "200.2",
                 diff: "-400.6",
-                prod: "-30100.08"
+                prod: "-30100.08",
+                div: "-0.3335552596"
             }
         },
         {
@@ -237,7 +255,8 @@ const cases: Array<
             res: {
                 sum: "-400.6",
                 diff: "200.2",
-                prod: "30100.08"
+                prod: "30100.08",
+                div: "0.3335552596"
             }
         },
         {
@@ -248,22 +267,24 @@ const cases: Array<
             res: {
                 sum: "-200.2",
                 diff: "400.6",
-                prod: "-30100.08"
+                prod: "-30100.08",
+                div: "-0.3335552596"
             }
         },
     ]
 
-// for (let i of cases) {
-//     const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
-//     const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
-//     const res = {
-//         sum: BigDecimal.sum(num1, num2).toString(),
-//         diff: BigDecimal.diff(num1, num2).toString(),
-//         prod: BigDecimal.prod(num1, num2).toString(),
-//     }
-//     for (let j in res) {
-//         if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
-//     }
-// }
+for (let i of cases) {
+    const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
+    const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
+    const res = {
+        sum: BigDecimal.sum(num1, num2).toString(),
+        diff: BigDecimal.diff(num1, num2).toString(),
+        prod: BigDecimal.prod(num1, num2).toString(),
+        div: BigDecimal.div(num1, num2).toString(),
+    }
+    for (let j in res) {
+        if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
+    }
+}
 
-console.log(BigDecimal.div(num1, num2).toString());
+// console.log(BigDecimal.div(num1, num2).toString());
