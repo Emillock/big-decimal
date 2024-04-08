@@ -86,7 +86,7 @@ class BigDecimal {
         const { bigDecJoinArr, bigDec1Num2Len, bigDec2Num2Len } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
 
         const bigDec1Join = BigInt(bigDec1.num2 === 0n ? bigDecJoinArr[0]! : bigDecJoinArr[0]!.toString().replace(/0+$/, ''));
-        const bigDec2Join = BigInt(bigDec2.num2 === 0n ? bigDecJoinArr[0]! : bigDecJoinArr[1]!.toString().replace(/0+$/, ''));
+        const bigDec2Join = BigInt(bigDec2.num2 === 0n ? bigDecJoinArr[1]! : bigDecJoinArr[1]!.toString().replace(/0+$/, ''));
 
         const resBigInt = bigDec1Join * bigDec2Join;
 
@@ -118,7 +118,7 @@ class BigDecimal {
         let resBefDotLen = resBefDot === 0n ? 0 : resBefDot.toString().length;
         let resAfDot = 0n;
 
-        for (let i = 0; i <= 10 + resBefDotLen && bigDec1Join % bigDec2Join > 0; ++i) {
+        for (let i = 0; i <= 10 + resBefDotLen && bigDec1Join > 0; ++i) {
             // console.log(bigDec1Join+"/"+bigDec2Join+"="+(bigDec1Join/bigDec2Join));
 
             if (i >= 1) {
@@ -126,6 +126,8 @@ class BigDecimal {
 
                 resAfDot = resAfDot * 10n + bigDec1Join / bigDec2Join;
             }
+            // console.log(bigDec1Join % bigDec2Join * 10n);
+            
             bigDec1Join = bigDec1Join % bigDec2Join * 10n;
         }
 
@@ -144,10 +146,8 @@ class BigDecimal {
     }
 }
 
-const num1 = new BigDecimal(30000, 4);
-const num2 = new BigDecimal(100, 2);
-const num3 = new BigDecimal(300, 4);
-const num4 = new BigDecimal(100, 2);
+const num1 = new BigDecimal(3, 0);
+const num2 = new BigDecimal(2, 0);
 const cases: Array<
     {
         args: Array<number[]>
@@ -291,6 +291,18 @@ const cases: Array<
                 div: "29.944111776447"
             }
         },
+        {
+            args: [
+                [3, 0],
+                [2, 0]
+            ],
+            res: {
+                sum: "5",
+                diff: "1",
+                prod: "6",
+                div: "1.5"
+            }
+        },
     ]
 
 for (let i of cases) {
@@ -307,5 +319,5 @@ for (let i of cases) {
     }
 }
 
+// console.log(BigDecimal.prod(num1, num2).toString());
 // console.log(BigDecimal.div(num1, num2).toString());
-// console.log(BigDecimal.div(num3, num4).toString());
