@@ -116,7 +116,8 @@ class BigDecimal {
 
         let resBefDot = bigDec1Join / bigDec2Join;
         let resAfDot = 0n;
-        while (bigDec1Join % bigDec2Join > 0 && resAfDot.toString().length < 10) {
+
+        for (let i = 0; i <= 10 && bigDec1Join % bigDec2Join > 0; ++i) {
             // console.log(bigDec1Join+"/"+bigDec2Join+"="+(bigDec1Join/bigDec2Join));
 
             resAfDot = resAfDot * 10n + bigDec1Join / bigDec2Join;
@@ -269,6 +270,18 @@ const cases: Array<
                 diff: "400.6",
                 prod: "-30100.08",
                 div: "-0.3335552596"
+            }
+        },
+        {
+            args: [
+                [3000, 4],
+                [100, 2]
+            ],
+            res: {
+                sum: "3100.6",
+                diff: "2900.2",
+                prod: "300640.08",
+                div: "29.9441117764"
             }
         },
     ]
