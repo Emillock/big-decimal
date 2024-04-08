@@ -115,19 +115,24 @@ class BigDecimal {
         const isNegative = bigDec2.isNegative !== bigDec1.isNegative;
 
         let resBefDot = bigDec1Join / bigDec2Join;
+        let resBefDotLen = resBefDot === 0n ? 0 : resBefDot.toString().length;
         let resAfDot = 0n;
 
-        for (let i = 0; i <= 10 && bigDec1Join % bigDec2Join > 0; ++i) {
+        for (let i = 0; i <= 10 + resBefDotLen && bigDec1Join % bigDec2Join > 0; ++i) {
             // console.log(bigDec1Join+"/"+bigDec2Join+"="+(bigDec1Join/bigDec2Join));
 
-            resAfDot = resAfDot * 10n + bigDec1Join / bigDec2Join;
+            if (i >= 1) {
+                // console.log(i,bigDec1Join / bigDec2Join);
+
+                resAfDot = resAfDot * 10n + bigDec1Join / bigDec2Join;
+            }
             bigDec1Join = bigDec1Join % bigDec2Join * 10n;
         }
 
-        // console.log(resAfDot);
+        // console.log(resBefDot,resAfDot);
 
-        const resArr = resAfDot.toString().split('');
-        resArr.splice(resBefDot === 0n ? 0 : resBefDot.toString().length, 0, '.');
+        const resArr = ((resBefDot === 0n ? "" : resBefDot.toString()) + resAfDot.toString()).split('');
+        resArr.splice(resBefDotLen, 0, '.');
 
         return new BigDecimal((isNegative ? "-" : "") + (resAfDot === 0n ? resBefDot : resArr.join('')));
     }
@@ -139,8 +144,10 @@ class BigDecimal {
     }
 }
 
-const num1 = new BigDecimal(300, 4);
+const num1 = new BigDecimal(30000, 4);
 const num2 = new BigDecimal(100, 2);
+const num3 = new BigDecimal(300, 4);
+const num4 = new BigDecimal(100, 2);
 const cases: Array<
     {
         args: Array<number[]>
@@ -197,7 +204,7 @@ const cases: Array<
                 sum: "400.6",
                 diff: "200.2",
                 prod: "30100.08",
-                div: "2.998003992"
+                div: "2.99800399201"
             }
         },
         {
@@ -281,7 +288,7 @@ const cases: Array<
                 sum: "3100.6",
                 diff: "2900.2",
                 prod: "300640.08",
-                div: "29.9441117764"
+                div: "29.944111776447"
             }
         },
     ]
@@ -301,3 +308,4 @@ for (let i of cases) {
 }
 
 // console.log(BigDecimal.div(num1, num2).toString());
+// console.log(BigDecimal.div(num3, num4).toString());
