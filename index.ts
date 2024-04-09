@@ -39,15 +39,15 @@ class BigDecimal {
     }
 
     private static bigDecJoin(bigDec1: BigDecimal, bigDec2: BigDecimal) {
-        const bigDec1Num2Len = bigDec1.num2.toString().length;
-        const bigDec2Num2Len = bigDec2.num2.toString().length;
+        const bigDec1Num2Len = bigDec1.num2.toString().length + bigDec1.zerosBefNum2;
+        const bigDec2Num2Len = bigDec2.num2.toString().length + bigDec2.zerosBefNum2;
         const maxLen = Math.max(bigDec1Num2Len, bigDec2Num2Len);
 
-        const bigDec1Num2Str = bigDec1.num2.toString().padEnd(maxLen, '0');
-        const bigDec2Num2Str = bigDec2.num2.toString().padEnd(maxLen, '0');
+        const bigDec1Num2Str = ("0".repeat(bigDec1.zerosBefNum2)+bigDec1.num2.toString()).padEnd(maxLen, '0');
+        const bigDec2Num2Str = ("0".repeat(bigDec2.zerosBefNum2)+bigDec2.num2.toString()).padEnd(maxLen, '0');
         // console.log(bigDec1Num2Str, bigDec2Num2Str);
-        const bigDec1Join = BigInt((bigDec1.isNegative ? "-" : "") + bigDec1.num1.toString() + "0".repeat(bigDec1.zerosBefNum2) + bigDec1Num2Str);
-        const bigDec2Join = BigInt((bigDec2.isNegative ? "-" : "") + bigDec2.num1.toString() + "0".repeat(bigDec2.zerosBefNum2) + bigDec2Num2Str);
+        const bigDec1Join = BigInt((bigDec1.isNegative ? "-" : "") + bigDec1.num1.toString() + bigDec1Num2Str);
+        const bigDec2Join = BigInt((bigDec2.isNegative ? "-" : "") + bigDec2.num1.toString() + bigDec2Num2Str);
         // console.log(bigDec1Join, bigDec2Join);
 
         return { bigDecJoinArr: [bigDec1Join, bigDec2Join], maxLen, bigDec1Num2Len, bigDec2Num2Len };
@@ -60,7 +60,7 @@ class BigDecimal {
         const bigDec2Join = bigDecJoinArr[1] as bigint;
 
         const resBigInt = bigDec1Join + bigDec2Join;
-        // console.log(resBigInt);
+        // console.log(bigDec1Join,bigDec2Join,resBigInt,maxLen);
 
         const resArr = resBigInt.toString().split('');
         resArr.splice(resBigInt.toString().length - maxLen, 0, '.');
@@ -110,7 +110,8 @@ class BigDecimal {
         const { bigDecJoinArr } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
 
         let bigDec1Join = BigDecimal.bigIntAbs(bigDecJoinArr[0] as bigint);
-        const bigDec2Join = BigDecimal.bigIntAbs(bigDecJoinArr[1] as bigint);
+        const bigDec2Join = BigDecimal.bigIntAbs(BigInt(bigDec2.zerosBefNum2 > 0 ? bigDecJoinArr[1]!.toString().replace(/0+$/, "") : bigDecJoinArr[1]!));
+        // console.log(bigDec1Join, bigDec2Join);
 
         const isNegative = bigDec2.isNegative !== bigDec1.isNegative;
 
@@ -119,24 +120,47 @@ class BigDecimal {
         let resAfDot = 0n;
 
         for (let i = 0; i <= 10 + resBefDotLen && bigDec1Join > 0; ++i) {
-            // console.log(bigDec1Join+"/"+bigDec2Join+"="+(bigDec1Join/bigDec2Join));
+            // console.log(bigDec1Join + "/" + bigDec2Join + "=" + (bigDec1Join / bigDec2Join));
 
             if (i >= 1) {
-                // console.log(i,bigDec1Join / bigDec2Join);
+                // console.log(i, bigDec1Join / bigDec2Join);
 
                 resAfDot = resAfDot * 10n + bigDec1Join / bigDec2Join;
             }
             // console.log(bigDec1Join % bigDec2Join * 10n);
-            
+
             bigDec1Join = bigDec1Join % bigDec2Join * 10n;
         }
 
-        // console.log(resBefDot,resAfDot);
+        // console.log(resBefDot, resAfDot);
 
         const resArr = ((resBefDot === 0n ? "" : resBefDot.toString()) + resAfDot.toString()).split('');
         resArr.splice(resBefDotLen, 0, '.');
 
         return new BigDecimal((isNegative ? "-" : "") + (resAfDot === 0n ? resBefDot : resArr.join('')));
+    }
+
+    static sqrt(bigDec: BigDecimal) {
+        const arr = [new BigDecimal(600, 0)];
+
+        for (let i = 1; i < 6; ++i) {
+            console.log(`0.5*(${arr[i - 1]}+${bigDec.toString()}/${arr[i - 1]})`);
+
+            const c = new BigDecimal(0, 5);
+            const div = BigDecimal.div(bigDec, arr[i - 1]!);
+            const sum = BigDecimal.sum(arr[i - 1]!, div);
+            const prod = BigDecimal.prod(c, sum);
+
+            console.log(c.toString(), div.toString(), sum.toString(), prod.toString());
+
+            arr[i] = prod;
+
+            console.log(arr[i]?.toString());
+            console.log("--------------------");
+
+        }
+
+        return arr[arr.length - 1] as BigDecimal;
     }
 
     toString() {
@@ -146,8 +170,9 @@ class BigDecimal {
     }
 }
 
-const num1 = new BigDecimal(3, 0);
-const num2 = new BigDecimal(2, 0);
+const num1 = new BigDecimal(125348, 0);
+// const num1 = new BigDecimal("354.05");
+const num2 = new BigDecimal("354.3");
 const cases: Array<
     {
         args: Array<number[]>
@@ -319,5 +344,5 @@ for (let i of cases) {
     }
 }
 
-// console.log(BigDecimal.prod(num1, num2).toString());
-// console.log(BigDecimal.div(num1, num2).toString());
+console.log(BigDecimal.sqrt(num1).toString());
+// console.log(BigDecimal.sum(num1, num2).toString());
