@@ -13,7 +13,7 @@ class BigDecimal {
         if (num2 === undefined && (typeof num1 === "string" || typeof num1 === "number")) {
             const numArr = num1.toString().split(".");
 
-            if (numArr[1] !== undefined && numArr[1].split('')[0] === '0') {
+            if (numArr[1] !== undefined && numArr[1].split('')[0] === '0' && numArr[1].split('').length > 1) {
                 // console.log(numArr[1].replace(/[1-9]+\d*/g, ''));
 
                 this.zerosBefNum2 = numArr[1].replace(/[1-9]+\d*/, '').length;
@@ -39,16 +39,17 @@ class BigDecimal {
     }
 
     private static bigDecJoin(bigDec1: BigDecimal, bigDec2: BigDecimal) {
-        const bigDec1Num2Len = bigDec1.num2.toString().length + bigDec1.zerosBefNum2;
-        const bigDec2Num2Len = bigDec2.num2.toString().length + bigDec2.zerosBefNum2;
+        const bigDec1Num2Len = bigDec1.num2.toString().replace(/0+$/, '').length + bigDec1.zerosBefNum2;
+        const bigDec2Num2Len = bigDec2.num2.toString().replace(/0+$/, '').length + bigDec2.zerosBefNum2;
         const maxLen = Math.max(bigDec1Num2Len, bigDec2Num2Len);
+        console.log(bigDec1.zerosBefNum2, bigDec2.zerosBefNum2, maxLen);
 
-        const bigDec1Num2Str = ("0".repeat(bigDec1.zerosBefNum2) + bigDec1.num2.toString()).padEnd(maxLen, '0');
-        const bigDec2Num2Str = ("0".repeat(bigDec2.zerosBefNum2) + bigDec2.num2.toString()).padEnd(maxLen, '0');
-        // console.log(bigDec1Num2Str, bigDec2Num2Str);
+        const bigDec1Num2Str = ("0".repeat(bigDec1.zerosBefNum2) + bigDec1.num2.toString().replace(/0+$/, '')).padEnd(maxLen, '0');
+        const bigDec2Num2Str = ("0".repeat(bigDec2.zerosBefNum2) + bigDec2.num2.toString().replace(/0+$/, '')).padEnd(maxLen, '0');
+        console.log(bigDec1Num2Str, bigDec2Num2Str);
         const bigDec1Join = BigInt((bigDec1.isNegative ? "-" : "") + bigDec1.num1.toString() + bigDec1Num2Str);
         const bigDec2Join = BigInt((bigDec2.isNegative ? "-" : "") + bigDec2.num1.toString() + bigDec2Num2Str);
-        // console.log(bigDec1Join, bigDec2Join);
+        console.log(bigDec1Join, bigDec2Join);
 
         return { bigDecJoinArr: [bigDec1Join, bigDec2Join], maxLen, bigDec1Num2Len, bigDec2Num2Len };
     }
@@ -85,10 +86,12 @@ class BigDecimal {
     static prod(bigDec1: BigDecimal, bigDec2: BigDecimal) {
         const { bigDecJoinArr, bigDec1Num2Len, bigDec2Num2Len } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
 
-        const bigDec1Join = BigInt(bigDec1.num2 === 0n ? bigDecJoinArr[0]! : bigDecJoinArr[0]!.toString().replace(/0+$/, ''));
-        const bigDec2Join = BigInt(bigDec2.num2 === 0n ? bigDecJoinArr[1]! : bigDecJoinArr[1]!.toString().replace(/0+$/, ''));
+        const bigDec1Join = bigDec1.num2 === 0n ? bigDec1.num1 : BigInt(bigDecJoinArr[0]!.toString().replace(/0+$/, ''));
+        const bigDec2Join = bigDec2.num2 === 0n ? bigDec2.num1 : BigInt(bigDecJoinArr[1]!.toString().replace(/0+$/, ''));
 
         const resBigInt = bigDec1Join * bigDec2Join;
+        console.log(bigDec1Join, bigDec2Join, resBigInt);
+
 
         const resArr = resBigInt.toString().split('');
 
@@ -150,6 +153,23 @@ class BigDecimal {
         }
         return s;
     }
+
+    static intPow(bigDec: BigDecimal, n: bigint) {
+        let pow = new BigDecimal("1.0");
+
+        for (let i = 0n; i < n; ++i) {
+            pow = BigDecimal.prod(pow, bigDec);
+            console.log(pow.toString());
+            console.log("-------------------");
+
+        }
+
+        return pow;
+    }
+
+    // static nthRoot(bigDec: BigDecimal) {
+
+    // }
 
     static sqrt(bigDec: BigDecimal) {
         const arr = [new BigDecimal(600, 0)];
@@ -341,21 +361,21 @@ const cases: Array<
         },
     ]
 
-// for (let i of cases) {
-//     const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
-//     const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
-//     const res = {
-//         sum: BigDecimal.sum(num1, num2).toString(),
-//         diff: BigDecimal.diff(num1, num2).toString(),
-//         prod: BigDecimal.prod(num1, num2).toString(),
-//         div: BigDecimal.div(num1, num2).toString(),
-//     }
-//     for (let j in res) {
-//         if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
-//     }
-// }
+for (let i of cases) {
+    const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
+    const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
+    const res = {
+        sum: BigDecimal.sum(num1, num2).toString(),
+        diff: BigDecimal.diff(num1, num2).toString(),
+        prod: BigDecimal.prod(num1, num2).toString(),
+        div: BigDecimal.div(num1, num2).toString(),
+    }
+    for (let j in res) {
+        if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
+    }
+}
 
 // console.log(BigDecimal.sqrt(num1).toString());
 // console.log(BigDecimal.sum(num1, num2).toString());
 
-console.log(BigDecimal.bigIntNthRoot(34n,5n));
+// console.log(BigDecimal.intPow(new BigDecimal("1.25"), 2n).toString());
