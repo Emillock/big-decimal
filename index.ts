@@ -43,8 +43,8 @@ class BigDecimal {
         const bigDec2Num2Len = bigDec2.num2.toString().length + bigDec2.zerosBefNum2;
         const maxLen = Math.max(bigDec1Num2Len, bigDec2Num2Len);
 
-        const bigDec1Num2Str = ("0".repeat(bigDec1.zerosBefNum2)+bigDec1.num2.toString()).padEnd(maxLen, '0');
-        const bigDec2Num2Str = ("0".repeat(bigDec2.zerosBefNum2)+bigDec2.num2.toString()).padEnd(maxLen, '0');
+        const bigDec1Num2Str = ("0".repeat(bigDec1.zerosBefNum2) + bigDec1.num2.toString()).padEnd(maxLen, '0');
+        const bigDec2Num2Str = ("0".repeat(bigDec2.zerosBefNum2) + bigDec2.num2.toString()).padEnd(maxLen, '0');
         // console.log(bigDec1Num2Str, bigDec2Num2Str);
         const bigDec1Join = BigInt((bigDec1.isNegative ? "-" : "") + bigDec1.num1.toString() + bigDec1Num2Str);
         const bigDec2Join = BigInt((bigDec2.isNegative ? "-" : "") + bigDec2.num1.toString() + bigDec2Num2Str);
@@ -138,6 +138,17 @@ class BigDecimal {
         resArr.splice(resBefDotLen, 0, '.');
 
         return new BigDecimal((isNegative ? "-" : "") + (resAfDot === 0n ? resBefDot : resArr.join('')));
+    }
+
+    static bigIntNthRoot(base: bigint, root: bigint) {
+        let s = base + 1n;
+        let k1 = root - 1n;
+        let u = base;
+        while (u < s) {
+            s = u;
+            u = ((u * k1) + base / (u ** k1)) / root;
+        }
+        return s;
     }
 
     static sqrt(bigDec: BigDecimal) {
@@ -330,19 +341,21 @@ const cases: Array<
         },
     ]
 
-for (let i of cases) {
-    const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
-    const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
-    const res = {
-        sum: BigDecimal.sum(num1, num2).toString(),
-        diff: BigDecimal.diff(num1, num2).toString(),
-        prod: BigDecimal.prod(num1, num2).toString(),
-        div: BigDecimal.div(num1, num2).toString(),
-    }
-    for (let j in res) {
-        if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
-    }
-}
+// for (let i of cases) {
+//     const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
+//     const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
+//     const res = {
+//         sum: BigDecimal.sum(num1, num2).toString(),
+//         diff: BigDecimal.diff(num1, num2).toString(),
+//         prod: BigDecimal.prod(num1, num2).toString(),
+//         div: BigDecimal.div(num1, num2).toString(),
+//     }
+//     for (let j in res) {
+//         if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
+//     }
+// }
 
-console.log(BigDecimal.sqrt(num1).toString());
+// console.log(BigDecimal.sqrt(num1).toString());
 // console.log(BigDecimal.sum(num1, num2).toString());
+
+console.log(BigDecimal.bigIntNthRoot(34n,5n));
