@@ -75,21 +75,21 @@ class BigDecimal {
         const bigDec1Join = bigDecJoinArr[0] as bigint;
         const bigDec2Join = bigDecJoinArr[1] as bigint;
 
-        console.log(bigDec1Join, bigDec2Join);
+        // console.log(bigDec1Join, bigDec2Join);
 
 
         let resBigInt = bigDec1Join - bigDec2Join;
         const isNegative = resBigInt < 0n;
         resBigInt = BigDecimal.bigIntAbs(resBigInt);
-        console.log(resBigInt);
+        // console.log(resBigInt);
 
-        console.log(resBigInt.toString().length - maxLen, maxLen);
+        // console.log(resBigInt.toString().length - maxLen, maxLen);
 
         const resArr = resBigInt.toString().split('');
         for (let i = resBigInt.toString().length - maxLen; i < 0; ++i) {
             resArr.splice(0, 0, '0');
         }
-        console.log(resArr);
+        // console.log(resArr);
 
         resArr.splice(Math.max(resBigInt.toString().length - maxLen, 0), 0, '.');
         resArr.splice(0, 0, isNegative ? '-' : "");
@@ -185,49 +185,35 @@ class BigDecimal {
     static nthRoot(bigDec: BigDecimal, root: bigint) {
         const arr = [new BigDecimal(BigDecimal.bigIntNthRoot(bigDec.num1, root).toString())];
 
-        for (let i = 1; i < 5; ++i) {
+        for (let i = 1; i < 20; ++i) {
             const pow = BigDecimal.intPow(arr[i - 1]!, root - 1n);
             const div1 = BigDecimal.div(bigDec, pow);
             const diff = BigDecimal.diff(div1, arr[i - 1]!);
             const div2 = BigDecimal.div(diff, new BigDecimal(root.toString()));
             const sum = BigDecimal.sum(arr[i - 1]!, div2);
-            // console.log(pow.toString());
+            // console.log(`${arr[i - 1]!}^${root - 1n}=${pow.toString()}`);
 
-            console.log(`${bigDec.toString()}/(${arr[i - 1]}^${root - 1n})=${div1.toString()}`);
-            console.log(`${div1.toString()}-${arr[i - 1]}=${diff.toString()}`);
+            // console.log(`${bigDec.toString()}/(${arr[i - 1]}^${root - 1n})=${div1.toString()}`);
+            // console.log(`${div1.toString()}-${arr[i - 1]}=${diff.toString()}`);
             // console.log(`${diff.toString()}/${new BigDecimal(root.toString())}=${div2.toString()}`);
+            // console.log(`${arr[i - 1]!}+${div2.toString()}=${sum.toString()}`);
 
-
-            console.log("----------------");
+            // console.log("----------------");
 
             arr[i] = sum;
         }
-        arr.forEach(i => console.log(i.toString()));
+        // arr.forEach(i => console.log(i.toString()));
 
         return arr[arr.length - 1]!;
     }
 
-    static sqrt(bigDec: BigDecimal) {
-        const arr = [new BigDecimal(600, 0)];
+    static pow(bigDec: BigDecimal, pow: BigDecimal) {
+        const num1Pow = BigDecimal.intPow(bigDec, pow.num1);
+        const denumPow = pow.num2 === 0n ? new BigDecimal("1") : BigDecimal.nthRoot(bigDec, BigInt("1" + "0".repeat(pow.num2.toString().length)));
+        const num2Pow = pow.num2 === 0n ? new BigDecimal("1") : BigDecimal.intPow(denumPow, pow.num2);
+        // console.log(num1Pow.toString(), denumPow.toString(),num2Pow.toString() );
 
-        for (let i = 1; i < 6; ++i) {
-            console.log(`0.5*(${arr[i - 1]}+${bigDec.toString()}/${arr[i - 1]})`);
-
-            const c = new BigDecimal(0, 5);
-            const div = BigDecimal.div(bigDec, arr[i - 1]!);
-            const sum = BigDecimal.sum(arr[i - 1]!, div);
-            const prod = BigDecimal.prod(c, sum);
-
-            console.log(c.toString(), div.toString(), sum.toString(), prod.toString());
-
-            arr[i] = prod;
-
-            console.log(arr[i]?.toString());
-            console.log("--------------------");
-
-        }
-
-        return arr[arr.length - 1] as BigDecimal;
+        return BigDecimal.prod(num1Pow, num2Pow);
     }
 
     toString() {
@@ -397,21 +383,21 @@ const cases: Array<
         },
     ]
 
-for (let i of cases) {
-    const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
-    const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
-    const res = {
-        sum: BigDecimal.sum(num1, num2).toString(),
-        diff: BigDecimal.diff(num1, num2).toString(),
-        prod: BigDecimal.prod(num1, num2).toString(),
-        div: BigDecimal.div(num1, num2).toString(),
-    }
-    for (let j in res) {
-        if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
-    }
-}
+// for (let i of cases) {
+//     const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
+//     const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
+//     const res = {
+//         sum: BigDecimal.sum(num1, num2).toString(),
+//         diff: BigDecimal.diff(num1, num2).toString(),
+//         prod: BigDecimal.prod(num1, num2).toString(),
+//         div: BigDecimal.div(num1, num2).toString(),
+//     }
+//     for (let j in res) {
+//         if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
+//     }
+// }
 
 // console.log(BigDecimal.sqrt(num1).toString());
 // console.log(BigDecimal.diff(num1, num2).toString());
 
-console.log(BigDecimal.nthRoot(new BigDecimal("34"), 5n).toString());
+console.log(BigDecimal.pow(new BigDecimal("34"), new BigDecimal("5.5")).toString());
