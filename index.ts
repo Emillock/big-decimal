@@ -280,7 +280,7 @@ class BigDecimal {
     static ln(bigDec: BigDecimal) {
         const arr = [];
 
-        for (let i = 0; i < 10; ++i) {
+        for (let i = 0; i < 100; ++i) {
             // console.log(i);
 
             const sumOfI = new BigDecimal((2 * i + 1).toString());
@@ -496,6 +496,6 @@ const cases: Array<
 // console.log(BigDecimal.sqrt(num1).toString());
 // console.log(BigDecimal.prod(num1, num2).toString());
 
-console.log(BigDecimal.ln(new BigDecimal("10")).toString());
+console.log(BigDecimal.ln(new BigDecimal("100")).toString());
 
 // console.log(BigDecimal.pow(num1, num2).toString());
