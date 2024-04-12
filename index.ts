@@ -97,7 +97,9 @@ class BigDecimal {
     }
 
     static prod(bigDec1: BigDecimal, bigDec2: BigDecimal) {
-        const { bigDecJoinArr, bigDec1Num2Len, bigDec2Num2Len } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
+        if (bigDec1.toString() === "1" || bigDec2.toString() === "1") return bigDec1.toString() === "1" ? bigDec2 : bigDec1;
+
+        const { bigDecJoinArr } = BigDecimal.bigDecJoin(bigDec1, bigDec2);;
 
         const bigDec1Join = bigDec1.num2 === 0n ? bigDec1.num1 : BigInt(bigDecJoinArr[0]!.toString().replace(/0+$/, ''));
         const bigDec2Join = bigDec2.num2 === 0n ? bigDec2.num1 : BigInt(bigDecJoinArr[1]!.toString().replace(/0+$/, ''));
@@ -108,15 +110,22 @@ class BigDecimal {
 
         const resArr = resBigInt.toString().split('');
 
-        let dotIndex = resBigInt.toString().length - (bigDec1Num2Len + bigDec2Num2Len);
+        if (bigDec1.num2 !== 0n || bigDec2.num2 !== 0n) {
 
-        while (dotIndex < 0) {
-            resArr.splice(dotIndex++, 0, '0');
+            let dotIndex = resBigInt.toString().length - ((bigDec1.num2 === 0n ? 0 : bigDec1.num2.toString().length + bigDec1.zerosBefNum2) + (bigDec2.num2 === 0n ? 0 : bigDec2.num2.toString().length + bigDec2.zerosBefNum2));
+            // console.log(resBigInt.toString().length, bigDec1.num2 === 0n ? 0 : bigDec1.num2.toString().length, bigDec2.num2 === 0n ? 0 : bigDec2.num2.toString().length);
+
+            // console.log(dotIndex);
+
+            while (dotIndex < 0) {
+                resArr.splice(0, 0, '0');
+                dotIndex++;
+            }
+            // console.log(resArr.join(''));
+            resArr.splice(dotIndex, 0, '.');
+
+            // console.log(resArr.join(''));
         }
-
-        resArr.splice(dotIndex, 0, '.');
-
-        // console.log(resArr.join(''));
 
         return new BigDecimal(resArr.join(''));
     }
@@ -169,28 +178,17 @@ class BigDecimal {
         return s;
     }
 
-    static intPow(bigDec: BigDecimal, n: bigint) {
-        let pow = new BigDecimal("1.0");
 
-        for (let i = 0n; i < n; ++i) {
-            pow = BigDecimal.prod(pow, bigDec);
-            // console.log(pow.toString());
-            // console.log("...................");
-
-        }
-
-        return pow;
-    }
 
     static nthRoot(bigDec: BigDecimal, root: bigint) {
         const arr = [new BigDecimal(BigDecimal.bigIntNthRoot(bigDec.num1, root).toString())];
 
-        for (let i = 1; i < 20; ++i) {
-            const pow = BigDecimal.intPow(arr[i - 1]!, root - 1n);
-            const div1 = BigDecimal.div(bigDec, pow);
-            const diff = BigDecimal.diff(div1, arr[i - 1]!);
-            const div2 = BigDecimal.div(diff, new BigDecimal(root.toString()));
-            const sum = BigDecimal.sum(arr[i - 1]!, div2);
+        for (let i = 1; i < 10; ++i) {
+            const pow = BigDecimal.intPow(arr[i - 1]!, root - 1n).toFixed(50);
+            const div1 = BigDecimal.div(bigDec, pow).toFixed(50);
+            const diff = BigDecimal.diff(div1, arr[i - 1]!).toFixed(50);
+            const div2 = BigDecimal.div(diff, new BigDecimal(root.toString())).toFixed(50);
+            const sum = BigDecimal.sum(arr[i - 1]!, div2).toFixed(50);
             // console.log(`${arr[i - 1]!}^${root - 1n}=${pow.toString()}`);
 
             // console.log(`${bigDec.toString()}/(${arr[i - 1]}^${root - 1n})=${div1.toString()}`);
@@ -207,13 +205,111 @@ class BigDecimal {
         return arr[arr.length - 1]!;
     }
 
+    static intPow(bigDec: BigDecimal, n: bigint): BigDecimal {
+        // console.log(bigDec.toString(), n);
+
+        if (n == 0n) return new BigDecimal("1");
+        if (n % 2n == 0n) return BigDecimal.intPow(BigDecimal.prod(bigDec, bigDec), n / 2n);
+        return BigDecimal.prod(bigDec, BigDecimal.intPow(bigDec, n - 1n)).toFixed(100);
+    }
+
     static pow(bigDec: BigDecimal, pow: BigDecimal) {
         const num1Pow = BigDecimal.intPow(bigDec, pow.num1);
-        const denumPow = pow.num2 === 0n ? new BigDecimal("1") : BigDecimal.nthRoot(bigDec, BigInt("1" + "0".repeat(pow.num2.toString().length)));
-        const num2Pow = pow.num2 === 0n ? new BigDecimal("1") : BigDecimal.intPow(denumPow, pow.num2);
-        // console.log(num1Pow.toString(), denumPow.toString(),num2Pow.toString() );
+        // console.log(1);
+        const denumPow = pow.num2 === 0n ? new BigDecimal("1") : BigDecimal.nthRoot(bigDec, BigInt("1" + "0".repeat(pow.num2.toString().length))).toFixed(50);
+        // console.log(2);
+        const num2Pow = pow.num2 === 0n ? new BigDecimal("1") : BigDecimal.intPow(denumPow, pow.num2).toFixed(50);
+        // console.log(3);
+        // console.log(num1Pow.toString(), denumPow.toString(), num2Pow.toString());
+        const prod = BigDecimal.prod(num1Pow, num2Pow);
+        return pow.isNegative ? BigDecimal.div(new BigDecimal("1"), prod) : prod;
+    }
 
-        return BigDecimal.prod(num1Pow, num2Pow);
+    static log10(bigDec: BigDecimal) {
+        return BigDecimal.prod(bigDec, new BigDecimal(Math.log(10).toString()));
+    }
+
+    toFixed(n: number) {
+        // console.log(this.toString());
+
+        return new BigDecimal(this.toString().slice(0, n));
+    }
+
+    // static ln(bigDec: BigDecimal) {
+    //     const arr = [BigDecimal.div(bigDec, BigDecimal.diff(bigDec, new BigDecimal(1)))];
+    //     for (let i = 1; i <= 11; ++i) {
+    //         console.log(i);
+
+    //         const powOf2 = new BigDecimal((2 ** -i).toString()).toFixed(30);
+    //         console.log(powOf2.toString());
+    //         const powOfx = BigDecimal.pow(bigDec, powOf2).toFixed(30);
+    //         console.log(powOfx.toString());
+    //         const numerator = BigDecimal.prod(powOf2, powOfx);
+    //         const denumenator = BigDecimal.sum(new BigDecimal("1"), powOfx);
+    //         arr[i] = BigDecimal.div(numerator, denumenator);
+    //         console.log("----------------");
+    //     }
+    //     let res = arr[0] as BigDecimal;
+    //     for (let i = 1; i < arr.length; ++i) {
+    //         res = BigDecimal.diff(res, arr[i]!);
+    //     }
+
+    //     return BigDecimal.div(new BigDecimal("1"), res);
+    // }
+
+
+    // FUNCTION BELOW WORKS ONLY FOR NUMBERS LESS THAN OR EQUAL TO 2 AND GREATER THAN 0
+    // static ln(bigDec: BigDecimal) {
+    //     const arr = [];
+
+    //     for (let i = 1; i < 10; ++i) {
+    //         arr[i] = BigDecimal.div(BigDecimal.pow(BigDecimal.diff(bigDec, new BigDecimal("1")), new BigDecimal(i.toString())), new BigDecimal(i.toString()));
+    //         arr[i]!.isNegative = !((i + 1) % 2 === 0);
+    //     }
+
+    //     let res = arr[1] as BigDecimal;
+    //     arr.forEach((i) => console.log(i?.toString()));
+
+    //     for (let i = 2; i < arr.length; ++i) {
+    //         res = BigDecimal.sum(res, arr[i]!);
+    //     }
+
+    //     return res;
+    // }
+
+    static ln(bigDec: BigDecimal) {
+        const arr = [];
+
+        for (let i = 0; i < 10; ++i) {
+            // console.log(i);
+
+            const sumOfI = new BigDecimal((2 * i + 1).toString());
+            const divOfZ = BigDecimal.div(BigDecimal.diff(bigDec, new BigDecimal("1")), BigDecimal.sum(bigDec, new BigDecimal("1")));
+            arr[i] = BigDecimal.div(BigDecimal.pow(divOfZ, sumOfI), sumOfI);
+
+            console.log(`2*${i}+1=${2 * i + 1}`);
+            console.log(`${BigDecimal.diff(bigDec, new BigDecimal("1")).toString()}/${BigDecimal.sum(bigDec, new BigDecimal("1")).toString()}=${divOfZ.toString()}`);
+            console.log(`${divOfZ.toString()}^${sumOfI.toString()}=${BigDecimal.pow(divOfZ, sumOfI).toFixed(100).toString()}`);
+            console.log(`${BigDecimal.pow(divOfZ, sumOfI).toFixed(10).toString()}/${sumOfI.toString()}=${arr[i]!.toString()}`);
+
+            console.log("----------------");
+
+        }
+
+        let res = arr[0] as BigDecimal;
+        arr.forEach((i) => console.log(i?.toString()));
+
+        for (let i = 1; i < arr.length; ++i) {
+            // let prevRes=Object.assign({}, res);
+            
+            res = BigDecimal.sum(res, arr[i]!);
+
+            // console.log(`${prevRes.toString()}+${arr[i]!.toString()}=${res.toString()}`);
+        }
+
+        res = BigDecimal.prod(res, new BigDecimal("2"));
+
+        return res;
     }
 
     toString() {
@@ -223,9 +319,9 @@ class BigDecimal {
     }
 }
 
-const num1 = new BigDecimal("2.02198908483");
+const num1 = new BigDecimal("0.037037037025925925927037037037");
 // const num1 = new BigDecimal("354.05");
-const num2 = new BigDecimal("2.025");
+const num2 = new BigDecimal("2");
 const cases: Array<
     {
         args: Array<number[]>
@@ -398,6 +494,8 @@ const cases: Array<
 // }
 
 // console.log(BigDecimal.sqrt(num1).toString());
-// console.log(BigDecimal.diff(num1, num2).toString());
+// console.log(BigDecimal.prod(num1, num2).toString());
 
-console.log(BigDecimal.pow(new BigDecimal("34"), new BigDecimal("5.5")).toString());
+console.log(BigDecimal.ln(new BigDecimal("10")).toString());
+
+// console.log(BigDecimal.pow(num1, num2).toString());
