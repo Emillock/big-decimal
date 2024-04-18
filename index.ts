@@ -243,11 +243,7 @@ class BigDecimal {
         return pow.isNegative ? BigDecimal.div(new BigDecimal("1"), prod) : prod;
     }
 
-    toFixed(n: number) {
-        // console.log(this.toString());
 
-        return new BigDecimal(this.toString().slice(0, n));
-    }
 
     // static ln(bigDec: BigDecimal) {
     //     const arr = [BigDecimal.div(bigDec, BigDecimal.diff(bigDec, new BigDecimal(1)))];
@@ -329,40 +325,61 @@ class BigDecimal {
         return BigDecimal.div(BigDecimal.ln(bigDec), BigDecimal.ln(base));
     }
 
-    static sin(bigDec: BigDecimal) {
-        function fac(num: number) {
-            let result = new BigDecimal(num.toString());
-            if (num === 0 || num === 1)
-                return new BigDecimal("1");
-            while (num > 1) {
-                num--;
-                result = BigDecimal.prod(result, new BigDecimal(num.toString()));
-            }
-            return result;
-        }
+    // FUNCTION BELOW WORKS ONLY WITH NUMBERS CLOSE TO 0
+    // static sin(bigDec: BigDecimal) {
+    //     function fac(num: number) {
+    //         let result = new BigDecimal(num.toString());
+    //         if (num === 0 || num === 1)
+    //             return new BigDecimal("1");
+    //         while (num > 1) {
+    //             num--;
+    //             result = BigDecimal.prod(result, new BigDecimal(num.toString()));
+    //         }
+    //         return result;
+    //     }
 
-        const arr = [];
+    //     const arr = [];
 
 
-        for (let i = 0; i < 10; ++i) {
-            const neg = new BigDecimal(((-1) ** i).toString());
-            const numerator = BigDecimal.pow(bigDec, new BigDecimal(2 * i + 1));
-            const denumenator = fac(2 * i + 1);
-            const res = BigDecimal.div(numerator, denumenator);
-            arr[i] = BigDecimal.prod(neg, res);
-        }
+    //     for (let i = 0; i < 10; ++i) {
+    //         const neg = new BigDecimal(((-1) ** i).toString());
+    //         const numerator = BigDecimal.pow(bigDec, new BigDecimal(2 * i + 1));
+    //         const denumenator = fac(2 * i + 1);
+    //         const res = BigDecimal.div(numerator, denumenator);
+    //         arr[i] = BigDecimal.prod(neg, res);
+    //     }
 
-        let res = arr[0] as BigDecimal;
+    //     let res = arr[0] as BigDecimal;
 
-        for (let i = 1; i < arr.length; ++i) {
-            // let prevRes=Object.assign({}, res);
+    //     for (let i = 1; i < arr.length; ++i) {
+    //         // let prevRes=Object.assign({}, res);
 
-            res = BigDecimal.sum(res, arr[i]!);
+    //         res = BigDecimal.sum(res, arr[i]!);
 
-            // console.log(`${prevRes.toString()}+${arr[i]!.toString()}=${res.toString()}`);
-        }
+    //         // console.log(`${prevRes.toString()}+${arr[i]!.toString()}=${res.toString()}`);
+    //     }
 
-        return res;
+    //     return res;
+    // }
+
+    static sin(bigDec:BigDecimal){
+        const mod=BigDecimal.mod(bigDec,BigDecimal.prod(new BigDecimal(2),BigDecimal.PI()));
+        const num=Number(mod.toString().slice(0,15));
+        return new BigDecimal(Math.sin(num).toString());
+    }
+
+    static PI() {
+        return new BigDecimal(Math.PI.toString());
+    }
+
+    static E() {
+        return new BigDecimal(Math.E.toString());
+    }
+
+    toFixed(n: number) {
+        // console.log(this.toString());
+
+        return new BigDecimal(this.toString().slice(0, n));
     }
 
     toString() {
@@ -374,7 +391,7 @@ class BigDecimal {
 
 
 
-const num1 = new BigDecimal("3.5");
+const num1 = new BigDecimal("10000000.123456789111213");
 // const num1 = new BigDecimal("354.05");
 const num2 = new BigDecimal("2");
 const cases: Array<
@@ -553,4 +570,4 @@ const cases: Array<
 
 // console.log(BigDecimal.sin(new BigDecimal("0.1")).toString());
 
-console.log(BigDecimal.mod(num1,num2).toString());
+console.log(BigDecimal.sin(num1).toString());
