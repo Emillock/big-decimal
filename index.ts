@@ -167,6 +167,18 @@ class BigDecimal {
         return new BigDecimal((isNegative ? "-" : "") + (resAfDot === 0n ? resBefDot : resArr.join('')));
     }
 
+    static floor(bigDec: BigDecimal) {
+        return new BigDecimal(bigDec.num1.toString());
+    }
+
+    static ceil(bigDec: BigDecimal) {
+        return new BigDecimal((bigDec.num1 + (bigDec.num2 === 0n ? 0n : 1n)).toString());
+    }
+
+    static mod(bigDec: BigDecimal, quot: BigDecimal) {
+        return BigDecimal.diff(bigDec, BigDecimal.prod(BigDecimal.floor(BigDecimal.div(bigDec, quot)), quot));
+    }
+
     static fac(bigDec: BigDecimal) {
         var fact = 1n;
         for (let i = 2n; i <= bigDec.num1; i++) {
@@ -362,7 +374,7 @@ class BigDecimal {
 
 
 
-const num1 = new BigDecimal("10");
+const num1 = new BigDecimal("3.5");
 // const num1 = new BigDecimal("354.05");
 const num2 = new BigDecimal("2");
 const cases: Array<
@@ -541,4 +553,4 @@ const cases: Array<
 
 // console.log(BigDecimal.sin(new BigDecimal("0.1")).toString());
 
-console.log(BigDecimal.fac(num1).toString());
+console.log(BigDecimal.mod(num1,num2).toString());
