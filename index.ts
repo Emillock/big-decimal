@@ -593,4 +593,4 @@ const cases: Array<
 
 // console.log(BigDecimal.sin(new BigDecimal("0.1")).toString());
 
-console.log(BigDecimal.ln(num1).toString());
+console.log(BigDecimal.log(num1).toString());
