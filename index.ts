@@ -38,9 +38,9 @@ class BigDecimal {
         return (bigInt < 0n) ? -bigInt : bigInt;
     }
 
-    static abs(bigDec:BigDecimal){
-        const newBigDec=new BigDecimal(bigDec.toString());
-        newBigDec.isNegative=false;
+    static abs(bigDec: BigDecimal) {
+        const newBigDec = new BigDecimal(bigDec.toString());
+        newBigDec.isNegative = false;
         return newBigDec;
     }
 
@@ -249,18 +249,61 @@ class BigDecimal {
         return pow.isNegative ? BigDecimal.div(new BigDecimal("1"), prod) : prod;
     }
 
-    static equal(bigDec1: BigDecimal, bigDec2: BigDecimal){
-        while(bigDec1.toString()!=="0"&&bigDec2.toString()!=="0"){
-            const num1=Number(bigDec1.toString().slice(0,15));
-            const num2=Number(bigDec2.toString().slice(0,15));
-            if(num1!==num2){
+    static equal(bigDec1: BigDecimal, bigDec2: BigDecimal) {
+        while (bigDec1.toString() !== "0" && bigDec2.toString() !== "0") {
+            const num1 = Number(bigDec1.toString().slice(0, 15));
+            const num2 = Number(bigDec2.toString().slice(0, 15));
+            if (num1 !== num2) {
                 return false;
             }
-            bigDec1=new BigDecimal(bigDec1.toString().slice(15));
-            bigDec2=new BigDecimal(bigDec2.toString().slice(15));
+            bigDec1 = new BigDecimal(bigDec1.toString().slice(15));
+            bigDec2 = new BigDecimal(bigDec2.toString().slice(15));
         }
         return true;
     }
+
+    static greater(bigDec1: BigDecimal, bigDec2: BigDecimal) {
+        while (bigDec1.toString() !== "0" && bigDec2.toString() !== "0") {
+            const num1 = Number(bigDec1.toString().slice(0, 15));
+            const num2 = Number(bigDec2.toString().slice(0, 15));
+            if (num1 > num2) {
+                return true;
+            }
+            bigDec1 = new BigDecimal(bigDec1.toString().slice(15));
+            bigDec2 = new BigDecimal(bigDec2.toString().slice(15));
+        }
+        return false;
+    }
+
+    static less(bigDec1: BigDecimal, bigDec2: BigDecimal) {
+        while (bigDec1.toString() !== "0" && bigDec2.toString() !== "0") {
+            const num1 = Number(bigDec1.toString().slice(0, 15));
+            const num2 = Number(bigDec2.toString().slice(0, 15));
+            if (num1 < num2) {
+                return true;
+            }
+            bigDec1 = new BigDecimal(bigDec1.toString().slice(15));
+            bigDec2 = new BigDecimal(bigDec2.toString().slice(15));
+        }
+        return false;
+    }
+
+    static greaterOrEqual(bigDec1: BigDecimal, bigDec2: BigDecimal) {
+        while (bigDec1.toString() !== "0" && bigDec2.toString() !== "0") {
+            const num1 = Number(bigDec1.toString().slice(0, 15));
+            const num2 = Number(bigDec2.toString().slice(0, 15));
+            if (num1 > num2) {
+                return true;
+            }
+            if (num1 !== num2) {
+                return false;
+            }
+            bigDec1 = new BigDecimal(bigDec1.toString().slice(15));
+            bigDec2 = new BigDecimal(bigDec2.toString().slice(15));
+        }
+        return true;
+    }
+
 
     // static ln(bigDec: BigDecimal) {
     //     const arr = [BigDecimal.div(bigDec, BigDecimal.diff(bigDec, new BigDecimal(1)))];
@@ -431,7 +474,7 @@ class BigDecimal {
 
 
 
-const num1 = new BigDecimal("100000000000.000000000011");
+const num1 = new BigDecimal("100000000000.000000000001");
 // const num1 = new BigDecimal("354.05");
 const num2 = new BigDecimal("100000000000.000000000001");
 const cases: Array<
@@ -623,4 +666,4 @@ const cases: Array<
 // console.log(BigDecimal.sin(new BigDecimal("0.1")).toString());
 
 // console.log(BigDecimal.log(num1).toString());
-console.log(BigDecimal.equal(num1,num2));
+console.log(BigDecimal.equal(num1, num2));
