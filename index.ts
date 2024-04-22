@@ -249,7 +249,11 @@ class BigDecimal {
         return pow.isNegative ? BigDecimal.div(new BigDecimal("1"), prod) : prod;
     }
 
+    // static equal(bigDec1: BigDecimal, bigDec2: BigDecimal){
+    //     while(){
 
+    //     }
+    // }
 
     // static ln(bigDec: BigDecimal) {
     //     const arr = [BigDecimal.div(bigDec, BigDecimal.diff(bigDec, new BigDecimal(1)))];
@@ -612,3 +616,4 @@ for (let i of cases) {
 // console.log(BigDecimal.sin(new BigDecimal("0.1")).toString());
 
 // console.log(BigDecimal.log(num1).toString());
+console.log(new BigDecimal("").toString());
