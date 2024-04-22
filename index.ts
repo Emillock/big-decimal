@@ -38,6 +38,12 @@ class BigDecimal {
         return (bigInt < 0n) ? -bigInt : bigInt;
     }
 
+    static abs(bigDec:BigDecimal){
+        const newBigDec=new BigDecimal(bigDec.toString());
+        newBigDec.isNegative=false;
+        return newBigDec;
+    }
+
     private static bigDecJoin(bigDec1: BigDecimal, bigDec2: BigDecimal) {
         const bigDec1Num2Len = bigDec1.num2.toString().replace(/0+$/, '').length + bigDec1.zerosBefNum2;
         const bigDec2Num2Len = bigDec2.num2.toString().replace(/0+$/, '').length + bigDec2.zerosBefNum2;
@@ -180,7 +186,7 @@ class BigDecimal {
     }
 
     static fac(bigDec: BigDecimal) {
-        var fact = 1n;
+        let fact = 1n;
         for (let i = 2n; i <= bigDec.num1; i++) {
             fact *= i;
         }
@@ -419,7 +425,7 @@ const num1 = new BigDecimal("100000000000000");
 const num2 = new BigDecimal("2");
 const cases: Array<
     {
-        args: Array<number[]>
+        args: Array<number[] | string>
         res: {
             sum: string,
             diff: string,
@@ -428,6 +434,18 @@ const cases: Array<
         }
     }
 > = [
+        {
+            args: [
+                "100",
+                "0.0001"
+            ],
+            res: {
+                sum: "100.0001",
+                diff: "99.9999",
+                prod: "0.01",
+                div: "1000000"
+            }
+        },
         {
             args: [
                 [100],
@@ -574,23 +592,23 @@ const cases: Array<
         },
     ]
 
-// for (let i of cases) {
-//     const num1 = new BigDecimal(i.args[0]![0]!, i.args[0]![1]!);
-//     const num2 = new BigDecimal(i.args[1]![0]!, i.args[1]![1]!);
-//     const res = {
-//         sum: BigDecimal.sum(num1, num2).toString(),
-//         diff: BigDecimal.diff(num1, num2).toString(),
-//         prod: BigDecimal.prod(num1, num2).toString(),
-//         div: BigDecimal.div(num1, num2).toString(),
-//     }
-//     for (let j in res) {
-//         if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
-//     }
-// }
+for (let i of cases) {
+    const num1 = new BigDecimal(typeof i.args[0] === "string" ? i.args[0]! : i.args[0]![0]!, typeof i.args[0] === "string" ? undefined : i.args[0]![1]!);
+    const num2 = new BigDecimal(typeof i.args[1] === "string" ? i.args[1]! : i.args[1]![0]!, typeof i.args[1] === "string" ? undefined : i.args[1]![1]!);
+    const res = {
+        sum: BigDecimal.sum(num1, num2).toString(),
+        diff: BigDecimal.diff(num1, num2).toString(),
+        prod: BigDecimal.prod(num1, num2).toString(),
+        div: BigDecimal.div(num1, num2).toString(),
+    }
+    for (let j in res) {
+        if (res[j as keyof typeof i.res] !== i.res[j as keyof typeof i.res]) console.log(...i.args + ` did not pass ${j}. Expected Result: ${i.res[j as keyof typeof i.res]} Got Result: ${res[j as keyof typeof i.res]}`);
+    }
+}
 
 // console.log(BigDecimal.sqrt(num1).toString());
 // console.log(BigDecimal.prod(num1, num2).toString());
 
 // console.log(BigDecimal.sin(new BigDecimal("0.1")).toString());
 
-console.log(BigDecimal.log(num1).toString());
+// console.log(BigDecimal.log(num1).toString());
