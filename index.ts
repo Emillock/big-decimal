@@ -431,7 +431,7 @@ class BigDecimal {
 
 
 
-const num1 = new BigDecimal("100000000000.000000000001");
+const num1 = new BigDecimal("100000000000.000000000011");
 // const num1 = new BigDecimal("354.05");
 const num2 = new BigDecimal("100000000000.000000000001");
 const cases: Array<
